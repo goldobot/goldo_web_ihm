@@ -22,6 +22,7 @@
     "html-webpack-plugin": "^3.2.0",
     "react": "^16.12",
     "react-dom": "^16.12",
+    "roslib": "^1.0.1",
     "style-loader": "^1.0.1",
     "webpack": "^4.41",
     "webpack-cli": "^3.3.10"
