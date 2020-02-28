@@ -15,6 +15,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import Grid from "@material-ui/core/Grid";
 
+
 import TableView from "./TableView.jsx";
 import PropulsionControlPanel from "./PropulsionControlPanel.jsx";
 
@@ -26,6 +27,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Provider } from 'react-redux'
 
 import store from './store.js';
+import ros from './ros.js';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -54,16 +56,16 @@ export default function App() {
           <Typography variant="h6" className={classes.title}>
             News
           </Typography>
-          <Button color="inherit">Login</Button>
+          <Button color="inherit">Connection</Button>
         </Toolbar>
 	</AppBar>
-    <Container maxWidth="md">
+    <Container maxWidth="lg">
       <Grid container spacing={1}>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
 		<PropulsionControlPanel/>
           
         </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={8}>
           <TableView />
         </Grid>
       </Grid>
@@ -73,8 +75,8 @@ export default function App() {
 }
 
 window.store = store;
+window.ros = ros;
 
-window.ros = new ROSLIB.Ros({ url: "ws://10.42.64.1:9090" });
 window.ros_services = {
   set_motors_enable: new ROSLIB.Service({
     ros: window.ros,

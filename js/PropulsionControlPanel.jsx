@@ -10,13 +10,13 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
 import theme from "./theme";
 import ROSLIB from "roslib";
+import IconButton from '@material-ui/core/IconButton';
 
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import Grid from "@material-ui/core/Grid";
 
 import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 
 import Slider from '@material-ui/core/Slider';
@@ -24,103 +24,15 @@ import Input from '@material-ui/core/Input';
 
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+import Card from '@material-ui/core/Card';
 
 import { connect } from "react-redux";
 
-
-const mapStateToProps2 = (state, ownProps) => {
-  return { point: state.trajectory_input[ownProps.index] };
-};
-
-function mapDispatchToProps2(dispatch, ownProps) {
-	console.log(ownProps);
-  return {
-    onXChanged: event => dispatch({type: "TRAJECTORY_INPUT_SET_POINT_X", payload:event.target.value*0.001,index:ownProps.index}),
-	onYChanged: event => dispatch({type: "TRAJECTORY_INPUT_SET_POINT_Y", payload:event.target.value*0.001,index:ownProps.index})
-  };
-}
+import PointListEditor from "./PointsListEditor.jsx";
 
 
-class PointEditor extends React.Component{
-	
-	  render() {		
-    return(
-	<Grid item xs={12}>
-    <Input
-	onChange={this.props.onXChanged}
-	value = {this.props.point[0]*1000}
-		  inputProps={{
-              step: 10,
-              min: 0,
-              max: 2000,
-              type: 'number'             
-            }}
-		  />
-		  <Input
-		  onChange={this.props.onYChanged}
-	value = {this.props.point[1]*1000}
-		  inputProps={{
-              step: 10,
-              min: -1500,
-              max: 1500,
-              type: 'number'             
-            }}
-		  />
-  </Grid>
-		
-		)
-	  }
-	
-}
-
-PointEditor = connect(mapStateToProps2, mapDispatchToProps2)(PointEditor);
-
-class PointListEditor extends React.Component{
-	
-	constructor(props) {
-    super(props);
-	this.onAddClicked = this.onAddClicked.bind(this);	
-	}
-	
-	onAddClicked()
-	{
-		this.props.addPoint([0,0]);
-	};
-	  render() {
-		  const pointsItems = this.props.trajectory_input.map((point, index) =>
-        <PointEditor key={index.toString()} index={index}/>
-);
-    return(
-	<Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Typography  gutterBottom>
-        Points
-		</Typography>
-        </Grid>
-		{pointsItems}
-		<Grid item xs={12}>
-		<Fab size="small" color="primary" aria-label="add" onClick={this.onAddClicked}>
-  <AddIcon />
-</Fab>
-		</Grid>
-		</Grid>
-		
-		)
-	  }
-	
-}
-
-const mapStateToProps1 = state => {
-  return { trajectory_input: state.trajectory_input };
-};
-
-function mapDispatchToProps1(dispatch) {
-  return {
-    addPoint: point => dispatch({type: "TRAJECTORY_INPUT_ADD_POINT", payload: point})
-  };
-}
-
-PointListEditor = connect(mapStateToProps1, mapDispatchToProps1)(PointListEditor);
 
 
 class PropulsionControlPanel extends React.Component {
