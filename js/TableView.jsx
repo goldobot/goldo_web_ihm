@@ -1,13 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import Link from '@material-ui/core/Link';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { ThemeProvider } from '@material-ui/core/styles';
-import theme from './theme';
 import ROSLIB from 'roslib';
 
 import { connect } from "react-redux";
@@ -40,6 +35,10 @@ function draw_marker(ctx, x, y, yaw, color)
 
 function drawRobot(ctx, pose, footprint)
 {
+	if (footprint.length == 0)
+	{
+		return;
+	}
 	ctx.setTransform();
 	ctx.transform(0,200,200,0,330,30);
 	ctx.translate(pose.position.x, pose.position.y);
@@ -71,7 +70,20 @@ function drawTrajectory(ctx, points)
 		ctx.lineTo( points[i][0], points[i][1]);
 		}	
 	ctx.setTransform();
+	ctx.lineWidth = 2;
 	ctx.stroke();
+	
+	if(points.length == 4)
+	{
+		ctx.setTransform();
+		ctx.transform(0,200,200,0,330,30);
+		ctx.beginPath();
+		ctx.moveTo(points[0][0], points[0][1]);
+		ctx.bezierCurveTo(points[1][0], points[1][1], points[2][0], points[2][1], points[3][0], points[3][1] );
+		ctx.setTransform();
+		ctx.stroke();
+		return;
+	}
 }
 
 class TableView extends React.Component {
@@ -81,48 +93,15 @@ class TableView extends React.Component {
 	img.onload = () => {
 		this.updateCanvas();
 	}
-	var listener = new ROSLIB.Topic({
-     ros : window.ros,
-     name : '/goldo/stm32/odometry',
-    messageType : 'goldo_msgs/RobotPose'
-  });
-  
-    this.markers = [];
+
   this.polygons = [];
-  this.robot_footprint = [[0,0]];
-  
-  var param_markers = new ROSLIB.Param({
-      ros : ros,
-      name : '/goldo/markers'
-    });
-	param_markers.get(this.updateMarkers.bind(this));
+  this.robot_footprint = [[0,0]];  
 	
 	var param_polygons = new ROSLIB.Param({
       ros : ros,
       name : '/goldo/polygons'
     });
 	param_polygons.get(this.updatePolygons.bind(this));
-  
-  	var param_robot_footprint = new ROSLIB.Param({
-      ros : ros,
-      name : '/goldo/robots/robot1/footprint'
-    });
-	param_robot_footprint.get(this.updateRobotFootprint.bind(this));
-	
-  listener.subscribe(this.updateRobotPose.bind(this));
-  
-  this.robot_pose = {position:{ x:0, y:0}};
-
-
-  }
-  
-  updateMarkers(param_markers)
-  {
-	  var markers = [];
-	  for (const [key, value] of Object.entries(param_markers)) {
-	markers.push({x: value.x * 0.001, y: value.y * 0.001, yaw: value.yaw*Math.M_PI/180, id: key});
-	}
-	this.markers = markers;
   }
   
   updatePolygons(param_polygons)
@@ -132,17 +111,6 @@ class TableView extends React.Component {
 	polygons.push(value);
 	}
 	this.polygons = polygons;
-  }
-  
-  updateRobotPose(message)
-  {
-	  this.robot_pose=message;
-  }
-  
-   updateRobotFootprint(message)
-  {
-	  this.robot_footprint=message;
-	  console.log(this.robot_footprint);
   }
   
   handleClick(e) {
@@ -166,7 +134,7 @@ class TableView extends React.Component {
 		draw_float(ctx, 1.750,1.567, 'green');
 		
 		draw_float(ctx, 1.450,-1.567, 'red');
-		draw_float(ctx, 1.526,-1.567, 'green');
+		draw_float(ctx, 1.525,-1.567, 'green');
 		draw_float(ctx, 1.600,-1.567, 'red');
 		draw_float(ctx, 1.675,-1.567, 'green');
 		draw_float(ctx, 1.750,-1.567, 'red');
@@ -183,7 +151,7 @@ class TableView extends React.Component {
 		draw_float(ctx, -0.067,-0.725, 'gray');
 		draw_float(ctx, -0.067,-0.800, 'gray');
 		
-		for(const marker of this.markers)
+		for(const marker of this.props.markers)
 		{
 			draw_marker(ctx, marker.x, marker.y, marker.yaw, 'yellow');
 		}
@@ -201,7 +169,7 @@ class TableView extends React.Component {
 		}
 		
 		drawTrajectory(ctx, this.props.trajectory_input);
-		//drawRobot(ctx, this.robot_pose, this.robot_footprint);
+		drawRobot(ctx, this.props.robots.robot1.pose, this.props.robots.robot1.footprint);
 		requestAnimationFrame(this.updateCanvas);
     }
   render() {
@@ -216,7 +184,8 @@ class TableView extends React.Component {
 
 const mapStateToProps = state => {
   return { markers: state.markers,
-trajectory_input: state.trajectory_input  };
+trajectory_input: state.trajectory_input,
+ robots: state.robots  };
 };
 
 TableView = connect(mapStateToProps)(TableView);

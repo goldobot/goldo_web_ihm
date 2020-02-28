@@ -92,6 +92,16 @@ window.ros_services = {
     ros: window.ros,
     name: "/goldo/stm32/motors/set_pwm",
     serviceType: "goldo_msgs/SetMotorsPwm"
+  }),
+    propulsion_point_to: new ROSLIB.Service({
+    ros: window.ros,
+    name: "/goldo/stm32/propulsion/point_to",
+    serviceType: "goldo_msgs/PropulsionPointTo"
+  }),
+      propulsion_move_to: new ROSLIB.Service({
+    ros: window.ros,
+    name: "/goldo/stm32/propulsion/move_to",
+    serviceType: "goldo_msgs/PropulsionMoveTo"
   })
 };
 ReactDOM.render(

@@ -1,14 +1,9 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import Link from "@material-ui/core/Link";
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { ThemeProvider } from "@material-ui/core/styles";
-import theme from "./theme";
 import ROSLIB from "roslib";
 import IconButton from '@material-ui/core/IconButton';
 
@@ -44,6 +39,12 @@ class PropulsionControlPanel extends React.Component {
 	this.handleChangePropulsionEnable = this.handleChangePropulsionEnable.bind(this);
 	this.handleMotorsPwmLeft = this.handleMotorsPwmLeft.bind(this);
 	this.handleMotorsPwmRight = this.handleMotorsPwmRight.bind(this);
+	
+	this.handlePointTo = this.handlePointTo.bind(this);
+	this.handleMoveTo = this.handleMoveTo.bind(this);
+	
+	this.handleTargetXChanged = this.handleTargetXChanged.bind(this);
+	this.handleTargetYChanged = this.handleTargetYChanged.bind(this);
   }
   
   componentDidMount() {
@@ -79,6 +80,35 @@ class PropulsionControlPanel extends React.Component {
   handleMotorsPwmRight(event, new_value)
   {
 	this.setState({motors_pwm_right: new_value});
+  }
+  
+  handleTargetXChanged(event)
+  {
+	  this.props.setInputTarget([event.target.value*0.001, this.props.input_target[1]]);
+  }
+  
+   handleTargetYChanged(event)
+  {
+	  this.props.setInputTarget([this.props.input_target[0], event.target.value*0.001]);
+  }
+  
+  handlePointTo()
+  {
+	  var request = new ROSLIB.ServiceRequest({ target: {x: this.props.input_target[0] , y: this.props.input_target[1] }, yaw_rate: 1, angular_acceleration: 1, angular_decceleration: 1 });
+      window.ros_services.propulsion_point_to.callService(request);
+	  console.log('point to clicked');
+  }
+  
+    handleMoveTo()
+  {
+	  var request = new ROSLIB.ServiceRequest({ target: {x: this.props.input_target[0] , y: this.props.input_target[1] }, speed: 1, acceleration: 1, decceleration: 1 });
+      window.ros_services.propulsion_move_to.callService(request);
+	  console.log('point to clicked');
+  }
+  
+  handleExecuteTrajectory()
+  {
+	  
   }
   
   render() {
@@ -124,7 +154,21 @@ class PropulsionControlPanel extends React.Component {
           />
 		  <Grid container spacing={2} alignItems="center">
 		  <Grid item>
+		  <Button variant="contained" color="primary" xs={6} onClick={this.handlePointTo}>Point To</Button>
+	  </Grid>
+	  <Grid item>
+		  <Button variant="contained" color="primary" xs={6} onClick={this.handleMoveTo}>Move To</Button>
+	  </Grid>
+	  <Grid item>
+		  <Button variant="contained" color="primary" xs={12} onClick={this.handleExecuteTrajectory}>Execute Trajectory</Button>
+	  </Grid>
+		  </Grid>	
+		  
+		  <Grid container spacing={2} alignItems="center">
+		  <Grid item>
 		  <Input
+		  value={this.props.input_target[0]*1000}
+		  onChange={this.handleTargetXChanged}
 		  inputProps={{
               step: 10,
               min: 0,
@@ -135,6 +179,8 @@ class PropulsionControlPanel extends React.Component {
 		  </Grid>
 		  <Grid item>
 		  <Input
+		  value={this.props.input_target[1]*1000}
+		  onChange={this.handleTargetYChanged}
 		  inputProps={{
               step: 10,
               min: -1500,
@@ -149,5 +195,19 @@ class PropulsionControlPanel extends React.Component {
     )
   }
 }
+
+const mapStateToProps = state => {
+  return {
+	  input_target: state.input_target
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    setInputTarget: point => dispatch({type: "INPUT_TARGET_SET", payload: point}),    
+  };
+}
+
+PropulsionControlPanel = connect(mapStateToProps, mapDispatchToProps)(PropulsionControlPanel);
 
 export {PropulsionControlPanel as default};
