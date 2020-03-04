@@ -1,7 +1,7 @@
 import store from './store.js';
 import ROSLIB from "roslib";
 
-const rosbridge_url = "ws://10.42.64.1:9090";
+const rosbridge_url = "ws://raspberrypi01/rosbridge";
 
 var ros = new ROSLIB.Ros({ url: rosbridge_url});
 

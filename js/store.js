@@ -12,7 +12,7 @@ const initialState = {
         pwm_right: 0
     },
 	robots: {robot1: {pose: {position: {x: 0, y: 0}, yaw:0}, footprint: []}},
-	input_target: [0,0]
+	input_target: [0,0,0]
 };
 
 const objectMap = (obj, fn) =>

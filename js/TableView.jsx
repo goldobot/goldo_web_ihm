@@ -49,10 +49,11 @@ function drawRobot(ctx, pose, footprint)
 		ctx.lineTo( footprint[i][0], footprint[i][1]);
 		}
 	ctx.closePath();
-	
+    
+	ctx.setTransform();
 	ctx.fillStyle = 'red';
 	ctx.fill();
-	//ctx.stroke();
+	ctx.stroke();
 	
 }
 

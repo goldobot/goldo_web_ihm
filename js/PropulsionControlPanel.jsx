@@ -45,6 +45,8 @@ class PropulsionControlPanel extends React.Component {
 	
 	this.handleTargetXChanged = this.handleTargetXChanged.bind(this);
 	this.handleTargetYChanged = this.handleTargetYChanged.bind(this);
+    this.handleTargetYawChanged = this.handleTargetYawChanged.bind(this);
+    this.handleExecuteTrajectory = this.handleExecuteTrajectory.bind(this);
   }
   
   componentDidMount() {
@@ -84,12 +86,17 @@ class PropulsionControlPanel extends React.Component {
   
   handleTargetXChanged(event)
   {
-	  this.props.setInputTarget([event.target.value*0.001, this.props.input_target[1]]);
+	  this.props.setInputTarget([event.target.value*0.001, this.props.input_target[1], this.props.input_target[2]]);
   }
   
    handleTargetYChanged(event)
   {
-	  this.props.setInputTarget([this.props.input_target[0], event.target.value*0.001]);
+	  this.props.setInputTarget([this.props.input_target[0], event.target.value*0.001, this.props.input_target[2]]);
+  }
+  
+  handleTargetYawChanged(event)
+  {
+	  this.props.setInputTarget([this.props.input_target[0], this.props.input_target[1], event.target.value * Math.M_PI/180]);
   }
   
   handlePointTo()
@@ -108,7 +115,9 @@ class PropulsionControlPanel extends React.Component {
   
   handleExecuteTrajectory()
   {
-	  
+      var request = new ROSLIB.ServiceRequest({trajectory: {points: this.props.input_trajectory.map(pt => { return {x: pt[0], y: pt[1]};})}, speed: 1, acceleration: 1, decceleration:1});
+      window.ros_services.propulsion_execute_trajectory.callService(request);
+	  console.log(this.props.input_trajectory);
   }
   
   render() {
@@ -152,20 +161,23 @@ class PropulsionControlPanel extends React.Component {
             onChange={this.handleMotorsPwmRight}
             //aria-labelledby="input-slider"
           />
-		  <Grid container spacing={2} alignItems="center">
-		  <Grid item>
-		  <Button variant="contained" color="primary" xs={6} onClick={this.handlePointTo}>Point To</Button>
+		  <Grid container spacing={1} alignItems="center">
+		  <Grid item xs={4}>
+		  <Button variant="contained" color="primary"  onClick={this.handlePointTo}>Point To</Button>
 	  </Grid>
-	  <Grid item>
-		  <Button variant="contained" color="primary" xs={6} onClick={this.handleMoveTo}>Move To</Button>
+	  <Grid item xs={4}>
+		  <Button variant="contained" color="primary"  onClick={this.handleMoveTo}>Move To</Button>
 	  </Grid>
-	  <Grid item>
-		  <Button variant="contained" color="primary" xs={12} onClick={this.handleExecuteTrajectory}>Execute Trajectory</Button>
+      <Grid item xs={4}>
+		  <Button variant="contained" color="primary"  onClick={this.handleMoveTo}>Stop</Button>
+	  </Grid>
+	  <Grid item xs={8}>
+		  <Button variant="contained" color="primary"  onClick={this.handleExecuteTrajectory}>Execute Trajectory</Button>
 	  </Grid>
 		  </Grid>	
 		  
-		  <Grid container spacing={2} alignItems="center">
-		  <Grid item>
+		  <Grid container spacing={1} alignItems="center">
+		  <Grid item xs={4}>
 		  <Input
 		  value={this.props.input_target[0]*1000}
 		  onChange={this.handleTargetXChanged}
@@ -177,14 +189,28 @@ class PropulsionControlPanel extends React.Component {
             }}
 		  />
 		  </Grid>
-		  <Grid item>
+		  <Grid item xs={4}>
 		  <Input
+          
 		  value={this.props.input_target[1]*1000}
 		  onChange={this.handleTargetYChanged}
 		  inputProps={{
               step: 10,
               min: -1500,
               max: 1500,
+              type: 'number'             
+            }}
+		  />
+		  </Grid>
+          <Grid item xs={4} >
+		  <Input
+         
+		  value={this.props.input_target[2]*180/Math.M_PI}
+		  onChange={this.handleTargetYawChanged}
+		  inputProps={{
+              step: 5,
+              min: -180,
+              max: 180,
               type: 'number'             
             }}
 		  />
@@ -198,7 +224,8 @@ class PropulsionControlPanel extends React.Component {
 
 const mapStateToProps = state => {
   return {
-	  input_target: state.input_target
+	  input_target: state.input_target,
+      input_trajectory: state.trajectory_input
   };
 };
 

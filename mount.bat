@@ -1,0 +1,1 @@
+net use L: \\raspberrypi01\catkin_ws /user:goldo raspberry

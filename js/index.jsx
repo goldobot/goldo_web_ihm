@@ -102,7 +102,13 @@ window.ros_services = {
     ros: window.ros,
     name: "/goldo/stm32/propulsion/move_to",
     serviceType: "goldo_msgs/PropulsionMoveTo"
+  }),
+        propulsion_execute_trajectory: new ROSLIB.Service({
+    ros: window.ros,
+    name: "/goldo/stm32/propulsion/execute_trajectory",
+    serviceType: "goldo_msgs/PropulsionExecuteTrajectory"
   })
+  
 };
 ReactDOM.render(
   <ThemeProvider theme={theme}>
