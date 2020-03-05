@@ -5,14 +5,32 @@ import {
 
 const initialState = {
 	markers: [],
+	polygons: [],
 	trajectory_input: [],
     motors: {
-        enabled: false,
-        pwm_left: 0,
-        pwm_right: 0
+        enable: false,
+        pwm: {
+			left: 0,
+			right: 0
+		}
     },
+	propulsion: {
+		state: 0,
+		error: 0,
+		pose_error: {
+			longitudinal: 0,
+			lateral: 0,
+			yaw: 0,
+			speed: 0,
+			yaw_rate: 0
+		},
+		target_pose: {position: {x: 0, y: 0}, yaw:0}
+	},
 	robots: {robot1: {pose: {position: {x: 0, y: 0}, yaw:0}, footprint: []}},
-	input_target: [0,0,0]
+	input_target: [0,0,0],
+	rosbridge: {
+		connected: false
+	}
 };
 
 const objectMap = (obj, fn) =>
@@ -33,9 +51,24 @@ function robotReducer(state, action)
 }
   
 function rootReducer(state = initialState, action) {
+	if (action.type === "ROSBRIDGE_SET_CONNECTED") {
+    return Object.assign({}, state, {
+      rosbridge: Object.assign({}, state.rosbridge, {connected: action.payload})
+    });
+  }  
   if (action.type === "MARKERS_UPDATE") {
     return Object.assign({}, state, {
       markers: action.payload
+    });
+  }
+    if (action.type === "PROPULSION_SET_STATE") {
+    return Object.assign({}, state, {
+      propulsion: Object.assign({}, state.propulsion, {state: action.payload})
+    });
+  }
+   if (action.type === "PROPULSION_SET_TARGET_POSE") {
+    return Object.assign({}, state, {
+      propulsion: Object.assign({}, state.propulsion, {target_pose: action.payload})
     });
   }
  if (action.type === "UPDATE_ROBOT_POSE") {
@@ -65,9 +98,15 @@ function rootReducer(state = initialState, action) {
   }  
   if (action.type === "MOTORS_SET_ENABLE") {
     return Object.assign({}, state, {
-      motors: Object.assign({}, state.motors, {enabled: action.payload})
+      motors: Object.assign({}, state.motors, {enable: action.payload})
     });
   }
+  if (action.type === "MOTORS_SET_PWM") {
+    return Object.assign({}, state, {
+      motors: Object.assign({}, state.motors, {pwm: action.payload})
+    });
+  }
+
   return state;
 }
 

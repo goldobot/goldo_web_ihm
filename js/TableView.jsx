@@ -24,13 +24,21 @@ function draw_float(ctx, x, y, color)
 	ctx.stroke();
 };
 
-function draw_marker(ctx, x, y, yaw, color)
+function draw_marker(ctx, marker, color)
 {
+	ctx.save();
+	var radius = 0.025;
 	ctx.beginPath();
-	ctx.arc(y * 200 + 330, x * 200 + 30, 0.025*200, 0, 2 * Math.PI);
+	ctx.arc(marker.position.y * 200 + 330, marker.position.x * 200 + 30, radius*200, 0, 2 * Math.PI);
 	ctx.fillStyle = color;
 	ctx.fill();	
 	ctx.stroke();
+	ctx.beginPath();
+	ctx.moveTo(marker.position.y * 200 + 330, marker.position.x * 200 + 30);
+	ctx.lineTo((marker.position.y + radius * Math.sin(marker.yaw)) * 200 + 330, (marker.position.x + radius * Math.cos(marker.yaw)) * 200 + 30);
+	ctx.lineWidth = 2
+	ctx.stroke()
+	ctx.restore();
 };
 
 function drawRobot(ctx, pose, footprint)
@@ -94,25 +102,11 @@ class TableView extends React.Component {
 	img.onload = () => {
 		this.updateCanvas();
 	}
+  this.robot_footprint = [[0,0]];  	
 
-  this.polygons = [];
-  this.robot_footprint = [[0,0]];  
-	
-	var param_polygons = new ROSLIB.Param({
-      ros : ros,
-      name : '/goldo/polygons'
-    });
-	param_polygons.get(this.updatePolygons.bind(this));
   }
   
-  updatePolygons(param_polygons)
-  {
-	   var polygons = [];
-	  for (const [key, value] of Object.entries(param_polygons)) {
-	polygons.push(value);
-	}
-	this.polygons = polygons;
-  }
+
   
   handleClick(e) {
         console.log('INSIDE');
@@ -152,11 +146,10 @@ class TableView extends React.Component {
 		draw_float(ctx, -0.067,-0.725, 'gray');
 		draw_float(ctx, -0.067,-0.800, 'gray');
 		
-		for(const marker of this.props.markers)
-		{
-			draw_marker(ctx, marker.x, marker.y, marker.yaw, 'yellow');
-		}
+		this.props.markers.forEach((marker) => {draw_marker(ctx, marker, 'yellow')});
+		this.props.polygons.forEach((polygon) => {draw_polygon(ctx, polygon, 'yellow')});
 		
+		/*
 		for(const poly of this.polygons)
 		{
 			ctx.beginPath();
@@ -167,17 +160,18 @@ class TableView extends React.Component {
 				}
 			ctx.closePath();
 			ctx.fill();
-		}
+		}*/
 		
 		drawTrajectory(ctx, this.props.trajectory_input);
 		drawRobot(ctx, this.props.robots.robot1.pose, this.props.robots.robot1.footprint);
+		draw_marker(ctx, this.props.target_pose, 'blue')
 		requestAnimationFrame(this.updateCanvas);
     }
   render() {
     return(
       <div>
         <canvas ref="canvas" width={660} height={460} onClick={this.handleClick.bind(this)} />
-		<img ref="image" src={img_table_bg} style={{visibility: "hidden"}} />
+		<img ref="image" src={img_table_bg} style={{display: "none"}} />
       </div>
     )
   }
@@ -185,8 +179,10 @@ class TableView extends React.Component {
 
 const mapStateToProps = state => {
   return { markers: state.markers,
+  polygons: state.polygons,
 trajectory_input: state.trajectory_input,
- robots: state.robots  };
+ robots: state.robots,
+target_pose: state.propulsion.target_pose };
 };
 
 TableView = connect(mapStateToProps)(TableView);

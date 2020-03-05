@@ -18,6 +18,7 @@ import Grid from "@material-ui/core/Grid";
 
 import TableView from "./TableView.jsx";
 import PropulsionControlPanel from "./PropulsionControlPanel.jsx";
+import PropulsionStatusPanel from "./PropulsionStatusPanel.jsx"
 
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -65,8 +66,9 @@ export default function App() {
 		<PropulsionControlPanel/>
           
         </Grid>
-        <Grid item xs={8}>
+        <Grid container item xs={8}>
           <TableView />
+		  <PropulsionStatusPanel />
         </Grid>
       </Grid>
     </Container>
@@ -80,36 +82,37 @@ window.ros = ros;
 window.ros_services = {
   set_motors_enable: new ROSLIB.Service({
     ros: window.ros,
-    name: "/goldo/stm32/motors/set_enable",
+    name: "/goldo/motors/set_enable",
     serviceType: "goldo_msgs/SetBool"
   }),
   set_propulsion_enable: new ROSLIB.Service({
     ros: window.ros,
-    name: "/goldo/stm32/propulsion/set_enable",
+    name: "/goldo/propulsion/set_enable",
     serviceType: "goldo_msgs/SetBool"
   }),
   motors_set_pwm: new ROSLIB.Service({
     ros: window.ros,
-    name: "/goldo/stm32/motors/set_pwm",
+    name: "/goldo/motors/set_pwm",
     serviceType: "goldo_msgs/SetMotorsPwm"
   }),
     propulsion_point_to: new ROSLIB.Service({
     ros: window.ros,
-    name: "/goldo/stm32/propulsion/point_to",
+    name: "/goldo/propulsion/point_to",
     serviceType: "goldo_msgs/PropulsionPointTo"
   }),
       propulsion_move_to: new ROSLIB.Service({
     ros: window.ros,
-    name: "/goldo/stm32/propulsion/move_to",
+    name: "/goldo/propulsion/move_to",
     serviceType: "goldo_msgs/PropulsionMoveTo"
   }),
         propulsion_execute_trajectory: new ROSLIB.Service({
     ros: window.ros,
-    name: "/goldo/stm32/propulsion/execute_trajectory",
+    name: "/goldo/propulsion/execute_trajectory",
     serviceType: "goldo_msgs/PropulsionExecuteTrajectory"
   })
   
 };
+
 ReactDOM.render(
   <ThemeProvider theme={theme}>
     {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}

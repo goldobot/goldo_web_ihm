@@ -53,17 +53,13 @@ class PropulsionControlPanel extends React.Component {
   }
   componentDidUpdate()
   {
-	  	var request = new ROSLIB.ServiceRequest({ left: this.state.motors_pwm_left * 0.01, right: this.state.motors_pwm_right * 0.01});
-    window.ros_services.motors_set_pwm.callService(request);  
+	  	
   }
   
   handleChangeMotorsEnable(event)
   {
-	  var request = new ROSLIB.ServiceRequest({ value: event.target.checked });
-
-    window.ros_services.set_motors_enable.callService(request);
-	this.setState({motors_enable: event.target.checked});
-	  
+	var request = new ROSLIB.ServiceRequest({ value: event.target.checked });
+    window.ros_services.set_motors_enable.callService(request);	  
   }
   
    handleChangePropulsionEnable(event)
@@ -76,12 +72,14 @@ class PropulsionControlPanel extends React.Component {
   
   handleMotorsPwmLeft(event, new_value)
   {
-	this.setState({motors_pwm_left: new_value});
+	  var request = new ROSLIB.ServiceRequest({data: { left: new_value * 0.01, right: this.props.motors.pwm_right}});
+	  window.ros_services.motors_set_pwm.callService(request);  
   }
   
   handleMotorsPwmRight(event, new_value)
   {
-	this.setState({motors_pwm_right: new_value});
+      var request = new ROSLIB.ServiceRequest({data: { left: this.props.motors.pwm_left, right:  new_value * 0.01}});
+	  window.ros_services.motors_set_pwm.callService(request);  
   }
   
   handleTargetXChanged(event)
@@ -96,7 +94,7 @@ class PropulsionControlPanel extends React.Component {
   
   handleTargetYawChanged(event)
   {
-	  this.props.setInputTarget([this.props.input_target[0], this.props.input_target[1], event.target.value * Math.M_PI/180]);
+	  this.props.setInputTarget([this.props.input_target[0], this.props.input_target[1], event.target.value * Math.PI/180]);
   }
   
   handlePointTo()
@@ -126,7 +124,7 @@ class PropulsionControlPanel extends React.Component {
       <FormControlLabel
             control={
               <Switch
-                checked={this.state.motors_enable}
+                checked={this.props.motors.enable}
                 onChange={this.handleChangeMotorsEnable}
               />
             }
@@ -135,7 +133,7 @@ class PropulsionControlPanel extends React.Component {
           <FormControlLabel
             control={
               <Switch
-                checked={this.state.propulsion_enable}
+                checked={this.props.propulsion.state !== 0}
                 onChange={this.handleChangePropulsionEnable}
               />
             }
@@ -145,7 +143,7 @@ class PropulsionControlPanel extends React.Component {
         Left PWM
 		</Typography>
 		  <Slider
-            value={this.state.motors_pwm_left}
+            value={this.props.motors.pwm.left * 100}
 			min={-100}
 			max={100}
             onChange={this.handleMotorsPwmLeft}
@@ -155,7 +153,7 @@ class PropulsionControlPanel extends React.Component {
         Right PWM
 		</Typography>
 		  <Slider
-            value={this.state.motors_pwm_right}
+            value={this.props.motors.pwm.right * 100}
 			min={-100}
 			max={100}
             onChange={this.handleMotorsPwmRight}
@@ -205,7 +203,7 @@ class PropulsionControlPanel extends React.Component {
           <Grid item xs={4} >
 		  <Input
          
-		  value={this.props.input_target[2]*180/Math.M_PI}
+		  value={this.props.input_target[2]*180/Math.PI}
 		  onChange={this.handleTargetYawChanged}
 		  inputProps={{
               step: 5,
@@ -225,13 +223,15 @@ class PropulsionControlPanel extends React.Component {
 const mapStateToProps = state => {
   return {
 	  input_target: state.input_target,
-      input_trajectory: state.trajectory_input
+      input_trajectory: state.trajectory_input,
+	  motors: state.motors,
+	  propulsion: state.propulsion
   };
 };
 
 function mapDispatchToProps(dispatch) {
   return {
-    setInputTarget: point => dispatch({type: "INPUT_TARGET_SET", payload: point}),    
+    setInputTarget: point => dispatch({type: "INPUT_TARGET_SET", payload: point}),
   };
 }
 
