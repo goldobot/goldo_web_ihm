@@ -117,7 +117,7 @@ class TableView extends React.Component {
         const ctx = this.refs.canvas.getContext('2d');
 		ctx.setTransform();
 		const img = this.refs.image;
-		ctx.fillStyle = "white";
+		ctx.fillStyle = "aqua";
 		ctx.fillRect(0, 0, 660, 460);
         ctx.drawImage(img, 30, 30);
         // draw children “components”

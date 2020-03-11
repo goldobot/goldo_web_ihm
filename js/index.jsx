@@ -9,10 +9,11 @@ import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
 import theme from "./theme";
-import ROSLIB from "roslib";
+
+import PropTypes from 'prop-types';
 
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
+
 import Grid from "@material-ui/core/Grid";
 
 
@@ -23,6 +24,9 @@ import PropulsionStatusPanel from "./PropulsionStatusPanel.jsx"
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Provider } from 'react-redux'
@@ -42,10 +46,38 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+function TabPanel(props) {  
+  const { children, value, index, ...other } = props;  
+  
+  return (  
+    <Typography  
+      component="div"  
+      role="tabpanel"  
+      hidden={value !== index}  
+      id={`simple-tabpanel-${index}`}  
+      aria-labelledby={`simple-tab-${index}`}  
+      {...other}  
+    >  
+      {value === index && <Box p={3}>{children}</Box>}  
+    </Typography>  
+  );  
+}  
+
+TabPanel.propTypes = {  
+  children: PropTypes.node,  
+  index: PropTypes.any.isRequired,  
+  value: PropTypes.any.isRequired,  
+};  
+
 export default function App() {
 
   
   const classes = useStyles();
+  const [value, setValue] = React.useState(0);
+  
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
   
   return (
     <React.Fragment>
@@ -54,16 +86,22 @@ export default function App() {
           <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            News
-          </Typography>
+          <Tabs value={value} onChange={handleChange} >
+			  <Tab label="Config Odometry" />
+			  <Tab label="Config Propulsion" />
+			  <Tab label="Test Propulsion" />
+			  <Tab label="Test Actuators" />
+			  <Tab label="Test Sequences" />
+        </Tabs>
           <Button color="inherit">Connection</Button>
         </Toolbar>
 	</AppBar>
     <Container maxWidth="lg">
       <Grid container spacing={1}>
         <Grid item xs={4}>
-		<PropulsionControlPanel/>
+		<TabPanel value={value} index={2}>
+			<PropulsionControlPanel />
+		</TabPanel>
           
         </Grid>
         <Grid container item xs={8}>
@@ -75,43 +113,6 @@ export default function App() {
 	</React.Fragment>
   );
 }
-
-window.store = store;
-window.ros = ros;
-
-window.ros_services = {
-  set_motors_enable: new ROSLIB.Service({
-    ros: window.ros,
-    name: "/goldo/motors/set_enable",
-    serviceType: "goldo_msgs/SetBool"
-  }),
-  set_propulsion_enable: new ROSLIB.Service({
-    ros: window.ros,
-    name: "/goldo/propulsion/set_enable",
-    serviceType: "goldo_msgs/SetBool"
-  }),
-  motors_set_pwm: new ROSLIB.Service({
-    ros: window.ros,
-    name: "/goldo/motors/set_pwm",
-    serviceType: "goldo_msgs/SetMotorsPwm"
-  }),
-    propulsion_point_to: new ROSLIB.Service({
-    ros: window.ros,
-    name: "/goldo/propulsion/point_to",
-    serviceType: "goldo_msgs/PropulsionPointTo"
-  }),
-      propulsion_move_to: new ROSLIB.Service({
-    ros: window.ros,
-    name: "/goldo/propulsion/move_to",
-    serviceType: "goldo_msgs/PropulsionMoveTo"
-  }),
-        propulsion_execute_trajectory: new ROSLIB.Service({
-    ros: window.ros,
-    name: "/goldo/propulsion/execute_trajectory",
-    serviceType: "goldo_msgs/PropulsionExecuteTrajectory"
-  })
-  
-};
 
 ReactDOM.render(
   <ThemeProvider theme={theme}>

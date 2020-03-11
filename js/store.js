@@ -7,6 +7,12 @@ const initialState = {
 	markers: [],
 	polygons: [],
 	trajectory_input: [],
+	odometry: {
+		config: {
+			
+			
+		}
+	},
     motors: {
         enable: false,
         pwm: {
