@@ -1,7 +1,8 @@
 import store from './store.js';
 import ROSLIB from "roslib";
 
-const rosbridge_url = "ws://10.42.64.1:9090";
+var protocolPrefix = (window.location.protocol === 'https:') ? 'wss:' : 'ws:';
+const rosbridge_url = protocolPrefix + '//' + location.host + "/rosbridge";
 
 
 var ros = new ROSLIB.Ros();

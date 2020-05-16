@@ -61,7 +61,7 @@ class PropulsionControlPanel extends React.Component {
   handleChangeMotorsEnable(event)
   {
 	var request = new ROSLIB.ServiceRequest({ value: event.target.checked });
-ros_services.set_motors_enable.callService(request);	  
+    ros_services.set_motors_enable.callService(request);	  
   }
   
    handleChangePropulsionEnable(event)

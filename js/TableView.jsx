@@ -47,8 +47,7 @@ function drawRobot(ctx, pose, footprint)
 	{
 		return;
 	}
-	ctx.setTransform();
-	ctx.transform(0,200,200,0,330,30);
+	ctx.setTransform(0,200,200,0,330,30);
 	ctx.translate(pose.position.x, pose.position.y);
 	ctx.rotate(pose.yaw);
 	ctx.beginPath();
@@ -58,7 +57,7 @@ function drawRobot(ctx, pose, footprint)
 		}
 	ctx.closePath();
     
-	ctx.setTransform();
+	ctx.setTransform(1,0,0,1,0,0);
 	ctx.fillStyle = 'red';
 	ctx.fill();
 	ctx.stroke();
@@ -71,25 +70,24 @@ function drawTrajectory(ctx, points)
 	{
 		return;
 	}
-	ctx.setTransform();
-	ctx.transform(0,200,200,0,330,30);
+	ctx.setTransform(0,200,200,0,330,30);
 	ctx.beginPath();
 	ctx.moveTo(points[0][0], points[0][1]);
 	for( var i=0 ; i < points.length ; i++ ){
 		ctx.lineTo( points[i][0], points[i][1]);
 		}	
-	ctx.setTransform();
+	ctx.setTransform(1,0,0,1,0,0);
 	ctx.lineWidth = 2;
 	ctx.stroke();
 	
 	if(points.length == 4)
 	{
-		ctx.setTransform();
+		ctx.setTransform(1,0,0,1,0,0);
 		ctx.transform(0,200,200,0,330,30);
 		ctx.beginPath();
 		ctx.moveTo(points[0][0], points[0][1]);
 		ctx.bezierCurveTo(points[1][0], points[1][1], points[2][0], points[2][1], points[3][0], points[3][1] );
-		ctx.setTransform();
+		ctx.setTransform(1,0,0,1,0,0);
 		ctx.stroke();
 		return;
 	}
@@ -115,7 +113,7 @@ class TableView extends React.Component {
   
   updateCanvas() {
         const ctx = this.refs.canvas.getContext('2d');
-		ctx.setTransform();
+		ctx.setTransform(1,0,0,1,0,0);
 		const img = this.refs.image;
 		ctx.fillStyle = "aqua";
 		ctx.fillRect(0, 0, 660, 460);
